@@ -66,6 +66,7 @@ async function handleScore(state) {
     const displayText = document.getElementById("displayText");
     const lost = document.getElementsByClassName("lost")[0];
     const lostText = document.getElementsByClassName("lostText")[0];
+    const loseScore = docutment.getElementById("loseScore");
     // state = 1 = correct answer
     // state = 0 = false answer
     if (state === 1) {
@@ -77,6 +78,7 @@ async function handleScore(state) {
         await updatePage(currentPage)
     }
     if (state === 0) {
+        loseScore.textContent = SCORE
         SCORE = 0;
         lost.style.display = "block";
         await sleep(600);
