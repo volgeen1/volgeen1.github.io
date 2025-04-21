@@ -78,7 +78,7 @@ async function handleScore(state) {
         await updatePage(currentPage)
     }
     if (state === 0) {
-        loseScore.textContent = SCORE
+        loseScore.textContent = SCORE;
         SCORE = 0;
         lost.style.display = "block";
         await sleep(600);
