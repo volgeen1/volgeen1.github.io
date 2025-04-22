@@ -61,6 +61,7 @@ if (ENTRYARRAY < 1) {
 var initDone = false;
 
 async function handleScore(state) {
+    cardScore = { left: null, right: null };
     document.body.style.pointerEvents = "none";
     const display = document.getElementById("display");
     const displayText = document.getElementById("displayText");
@@ -85,6 +86,7 @@ async function handleScore(state) {
         lost.style.display = "none";
         await updatePage(currentPage);
     }
+    lost.textContent
     document.body.style.pointerEvents = "auto";
 }
 
@@ -145,7 +147,7 @@ async function updatePage(currentPage) {
         animes = JSON.parse(localStorage.getItem("array"));
     }
 
-    updateCard(leftCard, getRandomInt(animes.length));
+    await updateCard(leftCard, getRandomInt(animes.length));
     updateCard(rightCard, getRandomInt(animes.length));
 
     if (initDone === false) {
@@ -166,6 +168,8 @@ async function updateCard(card, num) {
     } else {
         cardScore["left"] = data.score;
     }
+
+    console.log(cardScore);
 
     card.querySelector(".card").src = data.cover;
     card.querySelector(".cardBackground").src = data.cover;
