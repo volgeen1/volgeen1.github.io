@@ -175,7 +175,7 @@ async function updateCard(card, num) {
     card.querySelector(".cardBackground").src = data.cover;
 
     card.querySelector(".infoBox .infoTitle").textContent = data.title;
-    card.querySelector(".infoBox .infoBody").innerhtml = data.description;
+    card.querySelector(".infoBox .infoBody").innerHTML = data.description;
 }
 
 function getRandomInt(max) {
