@@ -1,5 +1,5 @@
 addEventListener("DOMContentLoaded", (event) => {
-    updatePage(currentPage);
+    updatePage();
 
     document.getElementById("left").addEventListener("click", (e) => {
         if (cardScore["left"] >= cardScore["right"]) {
@@ -48,15 +48,10 @@ query ($page: Int, $perPage: Int) {
   }
 }
 `;
-
-const ENTRYARRAY = JSON.parse(localStorage.getItem("array")) ?? [];
 var SCORE = 0;
-var currentPage;
 var cardScore = { left: null, right: null };
-if (ENTRYARRAY < 1) {
-    currentPage = 1;
-} else {
-    currentPage = parseInt(localStorage.getItem("currentPage")) + 1 ?? 1;
+if (localStorage.getItem("currentPage") === null) {
+    localStorage.setItem("currentPage", 1);
 }
 var initDone = false;
 
@@ -76,7 +71,7 @@ async function handleScore(state) {
         display.style.display = "block";
         await sleep(300);
         display.style.display = "none";
-        await updatePage(currentPage)
+        await updatePage();
     }
     if (state === 0) {
         loseScore.textContent = SCORE;
@@ -84,7 +79,7 @@ async function handleScore(state) {
         lost.style.display = "block";
         await sleep(600);
         lost.style.display = "none";
-        await updatePage(currentPage);
+        await updatePage();
     }
     lost.textContent
     document.body.style.pointerEvents = "auto";
@@ -97,6 +92,7 @@ function handleResponse(response) {
 }
 
 function handleData(data) {
+    const ENTRYARRAY = JSON.parse(localStorage.getItem("array")) ?? [];
     data.data.Page.media.forEach(element => {
         ENTRYARRAY.push({
             title: element.title.english ?? element.title.romaji,
@@ -112,8 +108,8 @@ function handleError(error) {
     console.error("API Error:", error);
 }
 
-async function getentries(currentPage = 1) {
-    localStorage.setItem("currentPage", currentPage);
+async function getentries() {
+    const currentPage = localStorage.getItem("currentPage");
     var variables = {
         page: currentPage,
         perPage: 50
@@ -131,24 +127,33 @@ async function getentries(currentPage = 1) {
                 variables: variables
             })
         };
+    localStorage.setItem("currentPage", parseInt(currentPage) + 1);
 
     await fetch(url, options).then(handleResponse)
         .then(handleData)
         .catch(handleError);
+    console.log("currentPage:", currentPage, "data:", JSON.parse(localStorage.getItem("array")));
 }
 
-async function updatePage(currentPage) {
+async function updatePage() {
     const leftCard = document.getElementById("left");
     const rightCard = document.getElementById("right");
 
-    var animes = JSON.parse(localStorage.getItem("array"));
-    if (animes === null || animes.length < 40) {
-        await getentries(currentPage);
-        animes = JSON.parse(localStorage.getItem("array"));
+    var animes1 = JSON.parse(localStorage.getItem("array"));
+    if (animes1 === null || animes1.length < 40) {
+        await getentries();
+        animes1 = JSON.parse(localStorage.getItem("array"));
     }
 
-    await updateCard(leftCard, getRandomInt(animes.length));
-    updateCard(rightCard, getRandomInt(animes.length));
+    const leftNum = getRandomInt(animes1.length);
+    await updateCard(leftCard, animes1[leftNum]);
+    animes1.splice(leftNum, 1);
+
+    const rightNum = getRandomInt(animes1.length);
+    await updateCard(rightCard, animes1[rightNum]);
+    animes1.splice(rightNum, 1);
+
+    localStorage.setItem("array", JSON.stringify(animes1));
 
     if (initDone === false) {
         await sleep(200);
@@ -157,16 +162,16 @@ async function updatePage(currentPage) {
     }
 }
 
-async function updateCard(card, num) {
-    animes = JSON.parse(localStorage.getItem("array"));
-    const data = animes[num];
-    animes.splice(num, 1);
-    localStorage.setItem("array", JSON.stringify(animes));
-
-    if (cardScore["left"] !== null) {
-        cardScore["right"] = data.score;
-    } else {
-        cardScore["left"] = data.score;
+async function updateCard(card, data) {
+    try {
+        if (cardScore["left"] !== null) {
+            cardScore["right"] = data.score;
+        } else {
+            cardScore["left"] = data.score;
+        }
+    } catch (error) {
+        updatePage();
+        return;
     }
 
     console.log(cardScore);
