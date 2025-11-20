@@ -112,7 +112,7 @@ async function getentries() {
     const currentPage = localStorage.getItem("currentPage");
     var variables = {
         page: currentPage,
-        perPage: 50
+        perPage: 30
     };
 
     var url = 'https://graphql.anilist.co',
@@ -140,7 +140,7 @@ async function updatePage() {
     const rightCard = document.getElementById("right");
 
     var animes1 = JSON.parse(localStorage.getItem("array"));
-    if (animes1 === null || animes1.length < 40) {
+    if (animes1 === null || animes1.length < 20) {
         await getentries();
         animes1 = JSON.parse(localStorage.getItem("array"));
     }
@@ -190,3 +190,4 @@ function getRandomInt(max) {
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
+
